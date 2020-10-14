@@ -7,6 +7,8 @@
 
 import UIKit
 import CoreLocation
+import Alamofire
+import SwiftyJSON
 
 class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
@@ -28,7 +30,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
         locationManager.requestWhenInUseAuthorization()
-        
+        locationManager.startUpdatingLocation()
         
     }
     
@@ -36,7 +38,24 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
     //MARK: - Networking
     
-
+    func getWeatherData(url: String, parameters: [String : String]){
+        
+        AF.request(url, method: .get, parameters: parameters).responseJSON {
+            response in
+            switch response.result {
+            case .success:
+                print(response)
+                print("Success, data from Weather API are readed")
+                
+                break
+            case .failure(let error):
+                print("Connection Issues")
+                print(error)
+                self.cityLabel.text = "Check Connection"
+            }
+        }
+        
+    }
     
     
     
@@ -57,9 +76,27 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
     //MARK: - Location Manager Delegate Methods
    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let location = locations[locations.count - 1]
+        if location.horizontalAccuracy > 0 {
+            locationManager.stopUpdatingLocation()
+            
+            print("longitude = \(location.coordinate.longitude), latitude = \(location.coordinate.latitude)")
+            
+            let latitude = String(location.coordinate.latitude)
+            let longitude = String(location.coordinate.longitude)
+            
+            let params : [String : String] = ["lat" : latitude, "lon" : longitude, "appid" : APP_ID]
+            
+            getWeatherData(url: WEATHER_URL, parameters: params)
+            
+        }
+    }
     
-    
-    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
+        cityLabel.text = "Problem with GPS Location"
+    }
 
     
     //MARK: - Change City Delegate methods
