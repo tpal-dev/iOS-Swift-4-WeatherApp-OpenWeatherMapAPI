@@ -9,6 +9,13 @@ import UIKit
 
 class WeatherDataModel {
 
+    var temperature : Int?
+    var condition : Int?
+    var city : String?
+    var weatherIconName : String?
+    var onlineIconName : String?
+    var weatherDescription : String?
+    
     
     func updateWeatherIcon(condition: Int) -> String {
         
@@ -37,15 +44,6 @@ class WeatherDataModel {
         
         case 801...804 :
             return "cloudy2"
-        
-        case 900...903, 905...1000  :
-            return "tstorm3"
-        
-        case 903 :
-            return "snow5"
-        
-        case 904 :
-            return "sunny"
         
         default :
             return "dunno"
