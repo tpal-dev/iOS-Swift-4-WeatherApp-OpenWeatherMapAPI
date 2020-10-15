@@ -10,7 +10,7 @@ import CoreLocation
 import Alamofire
 import SwiftyJSON
 
-class WeatherViewController: UIViewController, CLLocationManagerDelegate {
+class WeatherViewController: UIViewController, CLLocationManagerDelegate, ChangeCityDelegate {
     
     
     let WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather"
@@ -36,6 +36,8 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
         
+        temperatureLabel.isHidden = true
+        weatherDescription.isHidden = true
     }
     
     
@@ -61,11 +63,12 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
             case .failure(let error):
                 print("Connection Issues")
                 print(error)
-                self.cityLabel.text = "Check Connection"
+                self.cityLabel.text = "Check Internet"
             }
         }
         
     }
+    
     
     func weatherIconDownload(){
         
@@ -96,11 +99,28 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
             weatherDataModel.weatherIconName = weatherDataModel.updateWeatherIcon(condition: weatherCondition)
             weatherDataModel.onlineIconName = json["weather"][0]["icon"].string
             weatherDataModel.weatherDescription = json["weather"][0]["description"].string
+            weatherDataModel.messageError = json["message"].string
             
             updateUIWithWeatherData()
         }
         else {
-            cityLabel.text = "Connection issues"
+            weatherDataModel.messageError = json["message"].string
+            cityLabel.text = weatherDataModel.messageError?.uppercased()
+            print(json)
+            if cityLabel.text == "CITY NOT FOUND" {
+                
+                let alert = UIAlertController(title: "WRONG CITY NAME", message: "Correct a name of the city", preferredStyle: .alert)
+                
+                alert.addAction(UIAlertAction(title: "OK", style: .default) { (UIAlertAction) in
+                    self.performSegue(withIdentifier: "changeCityName", sender: self)
+                })
+                
+                present(alert, animated: true, completion: nil)
+                
+                
+                
+            }
+            
         }
     }
     
@@ -109,6 +129,9 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     //MARK: - UI Updates
     
     func updateUIWithWeatherData(){
+        
+        temperatureLabel.isHidden = false
+        weatherDescription.isHidden = false
         
         cityLabel.text = weatherDataModel.city?.uppercased()
         weatherDescription.text = weatherDataModel.weatherDescription?.uppercased()
@@ -121,7 +144,6 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
         
         
     }
-    
     
     
     
@@ -151,11 +173,23 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     
+    
     //MARK: - Change City Delegate methods
     
+    func userEnteredANewCityName(city: String) {
+        
+        let params : [String : String] = ["q" : city, "units" : units, "appid" : APP_ID]
+        getWeatherData(url: WEATHER_URL, parameters: params)
+    }
     
     
-    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "changeCityName" {
+            let destinationVC = segue.destination as! ChangeCityViewController
+            destinationVC.delegate = self
+        }
+    }
     
     
 }

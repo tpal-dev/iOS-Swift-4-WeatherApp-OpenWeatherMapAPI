@@ -15,19 +15,23 @@ class WeatherDataModel {
     var weatherIconName : String?
     var onlineIconName : String?
     var weatherDescription : String?
+    var messageError: String?
     
     
     func updateWeatherIcon(condition: Int) -> String {
         
     switch (condition) {
     
-        case 0...300 :
+        case 0...212 :
             return "tstorm1"
         
-        case 301...500 :
-            return "light_rain"
+        case 213...232 :
+            return "tstorm3"
         
-        case 501...600 :
+        case 300...321 :
+            return "drizzle"
+        
+        case 500...531 :
             return "shower3"
         
         case 601...700 :
@@ -36,7 +40,7 @@ class WeatherDataModel {
         case 701...771 :
             return "fog"
         
-        case 772...799 :
+        case 781 :
             return "tstorm3"
         
         case 800 :
@@ -46,7 +50,7 @@ class WeatherDataModel {
             return "cloudy2"
         
         default :
-            return "dunno"
+            return "Cloud-Refresh"
         }
 
     }
