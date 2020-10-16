@@ -15,3 +15,4 @@ You can find here:
 * SwiftyJSON
 * Alamofire
 
+![GIF](https://s8.gifyu.com/images/Projekt-bez-tytuluf72616e4e0c3e003.gif)
